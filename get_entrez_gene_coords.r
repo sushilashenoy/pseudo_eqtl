@@ -7,6 +7,7 @@ gene2refseq.cols <- c('taxid', 'entrez', 'status', 'refseq', 'refseq.gi', 'prot_
 
 if ( ! file.exists('gene2refseq.gz') ) {
   require('curl')
+  message('Downloading a large file...')
   curl_download(gene2refseq.url, 'gene2refseq.gz')
   system('gzip -dc gene2refseq.gz | grep "^9606" | gzip - > Homo_sapiens.gene2refseq.gz')
 } else {
@@ -62,11 +63,13 @@ if ( any(status.mismatch) )
 
 # Remaining duplicates are genes which are actually duplicated on the genome,
 # either on X & Y chromosome and others have proximal duplicates on the same
-# autoosome. For now leaving them in the table, but they will be ignored when
+# autosome. For now leaving them in the table, but they will be ignored when
 # we use match() to locate an entrez gene ID.
 
 
 save.cols <- c('entrez', 'chromosome', 'start', 'end', 'orientation', 'symbol')
 entrez2genome <- entrez2genome[, save.cols]
+mode(entrez2genome$start) <- mode(entrez2genome$end) <- 'numeric'
+rownames(entrez2genome) <- NULL
 
 save(entrez2genome, file='entrez2genome.RData')
