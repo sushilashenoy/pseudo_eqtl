@@ -18,14 +18,13 @@ if ( ! file.exists('Homo_sapiens.gene2refseq.gz') ) {
 gene2refseq <- read.table('Homo_sapiens.gene2refseq.gz', sep='\t',
                           col.names=gene2refseq.cols, stringsAsFactors=FALSE)
 
+# Save table for looking up entrez genes from refseq IDs
+refseq2entrez <- unique(gene2refseq[, c('refseq', 'entrez', 'status')])
+save(refseq2entrez, file='refseq2entrez.RData')
 
 # Identify the most used assembly and ignore others
 use.assembly <- names(which.max(table(gene2refseq$assembly)))
 entrez2refseq <- subset(gene2refseq, assembly==use.assembly)
-
-# Save table for looking up entrez genes from refseq IDs
-refseq2entrez <- unique(entrez2refseq[, c('refseq', 'entrez')])
-save(refseq2entrez, file='refseq2entrez.RData')
 
 # Identify entries corresponding to full chromosomes
 is.genomic <- substring(entrez2refseq$genome.acc, 1, 2)=='NC'
