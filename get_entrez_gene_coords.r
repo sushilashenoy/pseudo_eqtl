@@ -5,17 +5,18 @@ gene2refseq.cols <- c('taxid', 'entrez', 'status', 'refseq', 'refseq.gi', 'prot_
                       'genome.acc', 'genome.gi', 'start', 'end', 'orientation', 'assembly',
                       'peptide.acc', 'peptide.gi', 'symbol')
 
-if ( ! file.exists('gene2refseq.gz') ) {
+if ( ! file.exists('Homo_sapiens.gene2refseq.gz') ) {
   require('curl')
   message('Downloading a large file...')
   curl_download(gene2refseq.url, 'gene2refseq.gz')
   system('gzip -dc gene2refseq.gz | grep "^9606" | gzip - > Homo_sapiens.gene2refseq.gz')
 } else {
-  message('Using previously downloaded gene2refseq.gz, file age is ',
-          format(Sys.time() - file.mtime('gene2refseq.gz')))
+  message('Using previously downloaded Homo_sapiens.gene2refseq.gz, file age is ',
+          format(Sys.time() - file.mtime('Homo_sapiens.gene2refseq.gz')))
 }
 
-gene2refseq <- read.table('Homo_sapiens.gene2refseq.gz', sep='\t', col.names=gene2refseq.cols)
+gene2refseq <- read.table('Homo_sapiens.gene2refseq.gz', sep='\t',
+                          col.names=gene2refseq.cols, stringsAsFactors=FALSE)
 
 
 # Identify the most used assembly and ignore others
