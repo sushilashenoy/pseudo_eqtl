@@ -1,6 +1,4 @@
-load("refseq2entrez.RData")
-refseq2entrez <- subset(refseq2entrez, refseq != '-' & status != 'SUPPRESSED')
-all.refseq <- sort(unique(refseq2entrez$refseq))
+
 
 if ( !file.exists('all.human.rna.fasta') ) {
   #' There used to be a single file available for download with all (Human)
@@ -46,14 +44,26 @@ if ( !file.exists('all.human.rna.fasta') ) {
   message('Removing intermediate files..')
   system('rm human.*.rna.fasta')
   system('rm human.*.rna.fna.gz')
+  
 } else {
   message('Found previously downloaded all.human.rna.fasta, file age is ',
           format(Sys.time() - file.mtime('all.human.rna.fasta')))
 }
 
-# Extract refseq IDs
-system('sed "n;d;" < all.human.rna.fasta | cut -d" " -f1 | cut -d"|" -f4 > all.human.refseq.ids')
-dl.refseq.ids <- scan('all.human.refseq.ids', character())
+if ( !file.exists('all.human.refseq.ids') ) {
+  # Extract refseq IDs
+  system('sed "n;d;" < all.human.rna.fasta | cut -d" " -f1 | cut -d"|" -f4 > all.human.refseq.ids')
+}
 
-message('Found ', sum(!dl.refseq.ids %in% all.refseq), ' sequences with no associated gene.')
-# Not worth the effort to remove these few sequences at the moment
+if ( file.exists('refseq2entrez.RData') ) {
+  load("refseq2entrez.RData")
+  refseq2entrez <- subset(refseq2entrez, refseq != '-' & status != 'SUPPRESSED')
+  all.refseq <- sort(unique(refseq2entrez$refseq))
+  
+  # Extract refseq IDs
+  system('sed "n;d;" < all.human.rna.fasta | cut -d" " -f1 | cut -d"|" -f4 > all.human.refseq.ids')
+  dl.refseq.ids <- scan('all.human.refseq.ids', character())
+  
+  message('Found ', sum(!dl.refseq.ids %in% all.refseq), ' sequences with no associated gene.')
+  # Not worth the effort to remove these few sequences at the moment
+}
