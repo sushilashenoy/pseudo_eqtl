@@ -50,10 +50,17 @@ if ( !file.exists('all.human.rna.fasta') ) {
           format(Sys.time() - file.mtime('all.human.rna.fasta')))
 }
 
-if ( !file.exists('all.human.refseq.ids') ) {
+if ( !file.exists('all.human.rna.info') ) {
   # Extract refseq IDs
   system('sed "n;d;" < all.human.rna.fasta | cut -d" " -f1 | cut -d"|" -f4 > all.human.refseq.ids')
+  # Extract sequence lengths IDs
+  system('sed -n 2~2p < all.human.rna.fasta | awk "{print length}" > all.human.refseq.length')
+  # Combine into one file
+  system('paste all.human.refseq.ids all.human.refseq.length > all.human.rna.info')
+  # remove intermediate files
+  system('rm all.human.refseq.*')
 }
+
 
 if ( file.exists('refseq2entrez.RData') ) {
   load("refseq2entrez.RData")
@@ -62,8 +69,9 @@ if ( file.exists('refseq2entrez.RData') ) {
   
   # Extract refseq IDs
   system('sed "n;d;" < all.human.rna.fasta | cut -d" " -f1 | cut -d"|" -f4 > all.human.refseq.ids')
-  dl.refseq.ids <- scan('all.human.refseq.ids', character())
+  dl.refseq <- read.table('all.human.rna.info', sep='\t',
+                              col.names=c('id', 'length'), stringsAsFactors=FALSE)
   
-  message('Found ', sum(!dl.refseq.ids %in% all.refseq), ' sequences with no associated gene.')
+  message('Found ', sum(!dl.refseq$id %in% all.refseq), ' sequences with no associated gene.')
   # Not worth the effort to remove these few sequences at the moment
 }
