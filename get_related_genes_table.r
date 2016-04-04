@@ -11,7 +11,7 @@ if ( ! file.exists('Homo_sapiens.gene_groups.gz') ) {
 }
 
 gene.groups.cols <- c('taxid', 'id', 'relationship', 'ptaxid', 'partner')
-all.related.genes <- read.table(tmp, sep='\t', col.names=gene.groups.cols,
+all.related.genes <- read.table('Homo_sapiens.gene_groups.gz', sep='\t', col.names=gene.groups.cols,
                                 stringsAsFactors=FALSE)
 related.genes <- subset(all.related.genes, ptaxid=='9606')[, c('id', 'relationship', 'partner')]
 
